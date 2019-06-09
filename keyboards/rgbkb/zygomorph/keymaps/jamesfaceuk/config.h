@@ -18,32 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIG_USER_H
-#define CONFIG_USER_H
+#pragma once
+#undef TAPPING_FORCE_HOLD
+#define TAPPING_TERM 250
+#define TAPPING_TOGGLE 3
 
-#undef TAPPING_TERM
-#define TAPPING_TERM 300
-#define PERMISSIVE_HOLD
-/* when TAPPING_TERM >= 500 same effect PERMISSIVE_HOLD.
-   see tmk_core/common/action_tapping.c */
 
 // place overrides here
-#define SSD1306OLED
 
-
-// If you need more program area, try select and reduce rgblight modes to use.
-
-// Selection of RGBLIGHT MODE to use.
-#if defined(LED_ANIMATIONS)
-   #define RGBLIGHT_EFFECT_BREATHING
-   #define RGBLIGHT_EFFECT_RAINBOW_MOOD
-   #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
-   //#define RGBLIGHT_EFFECT_SNAKE
-   //#define RGBLIGHT_EFFECT_KNIGHT
-   #define RGBLIGHT_EFFECT_CHRISTMAS
-   #define RGBLIGHT_EFFECT_STATIC_GRADIENT
-   //#define RGBLIGHT_EFFECT_RGB_TEST
-   //#define RGBLIGHT_EFFECT_ALTERNATING
-#endif
-
-#endif /* CONFIG_USER_H */
