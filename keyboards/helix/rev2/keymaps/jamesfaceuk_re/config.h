@@ -21,14 +21,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CONFIG_USER_H
 #define CONFIG_USER_H
 
+#undef TAPPING_FORCE_HOLD
 #undef TAPPING_TERM
-#define TAPPING_TERM 300
+#define TAPPING_TERM 250
+#define TAPPING_TOGGLE 3
 #define PERMISSIVE_HOLD
 /* when TAPPING_TERM >= 500 same effect PERMISSIVE_HOLD.
    see tmk_core/common/action_tapping.c */
 
 // place overrides here
 #define SSD1306OLED
+
+#define NUMBER_OF_ENCODERS 1
+#define ENCODERS_PAD_A { B6 }
+#define ENCODERS_PAD_B { B5 }
+#define ENCODER_RESOLUTION 4
+
+#define USE_SERIAL
 
 
 // If you need more program area, try select and reduce rgblight modes to use.
