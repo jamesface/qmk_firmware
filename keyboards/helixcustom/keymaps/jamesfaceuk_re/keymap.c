@@ -72,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |Lower | Lower| Caps |  Alt |  GUI | Space|  BS  | Enter| Space| GUI  | Alt  | Menu |Lower |Lower |
    * `-------------------------------------------------------------------------------------------------'
    */
-  [_FUNCTION] = LAYOUT(KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_TRNS, KC_P7, KC_P8, KC_P9, KC_PMNS, KC_PSLS, KC__VOLDOWN, KC__MUTE, KC__VOLUP, KC_MINS, KC_EQL, SCMD(LALT(KC_L)), KC_TRNS, KC_P4, KC_P5, KC_P6, KC_PPLS, KC_PAST, KC_MRWD, KC_MPLY, KC_MFFD, KC_TRNS, KC_QUOT, KC_TRNS, KC_TRNS, KC_P1, KC_P2, KC_P3, KC_PENT, KC_PEQL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LBRC, KC_RBRC, KC_TRNS, KC_TRNS, KC_TRNS, KC_P0, KC_PDOT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
+  [_FUNCTION] = LAYOUT(KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_MPLY, KC_TRNS, KC_P7, KC_P8, KC_P9, KC_PMNS, KC_PSLS, KC__VOLDOWN, KC__MUTE, KC__VOLUP, KC_MINS, KC_EQL, SCMD(LALT(KC_L)), KC_TRNS, KC_P4, KC_P5, KC_P6, KC_PPLS, KC_PAST, KC_MRWD, KC_MPLY, KC_MFFD, KC_TRNS, KC_QUOT, KC_TRNS, KC_TRNS, KC_P1, KC_P2, KC_P3, KC_PENT, KC_PEQL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LBRC, KC_RBRC, KC_TRNS, KC_TRNS, KC_TRNS, KC_P0, KC_PDOT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
   /* Illustrator
    * ,-----------------------------------------.             ,-----------------------------------------.
@@ -190,18 +190,91 @@ void oled_task_user(void) {
 }
 #endif
 
+static bool tabbing = false;
+static uint16_t tabtimer;
+#define TABBING_TIMER 500
+
 void encoder_update_user(uint8_t index, bool clockwise) {
   if (index == 0) { /* First encoder */
-    if (clockwise) {
-      tap_code(KC_A);
-    } else {
-      tap_code(KC_B);
+    switch (biton32(layer_state)) {
+      case _FUNCTION:
+         if (clockwise) {
+              tap_code(KC__VOLUP);
+            } else {
+              tap_code(KC__VOLDOWN);
+            }
+      break;
+      case _ILLUSTRATOR:
+         if (clockwise) {
+              tap_code16(LGUI(KC_EQL));
+            } else {
+              tap_code16(LGUI(KC_MINS));
+            }
+      break;
+      case _ADJUST:
+         if (clockwise) {
+            rgblight_step();
+            } else {
+            rgblight_step_reverse();
+            }
+      break;
+      default:
+        if (clockwise) {
+            tabtimer = timer_read();
+            if(!tabbing) {
+                register_code(KC_LGUI);
+                tabbing = true;
+            }
+            tap_code(KC_TAB);
+        } else {
+            tabtimer = timer_read();
+            if(!tabbing) {
+                register_code(KC_LGUI);
+                tabbing = true;
+            }
+            register_code(KC_LSFT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LSFT);
+        }
     }
-  } else if (index == 1) { /* Second encoder */
+  } else if (index == 1) { /* Second encoder, clockwise is backwards */
+    switch (biton32(layer_state)) {
+      case _FUNCTION:
+         if (clockwise) {
+              tap_code(KC_MRWD);
+            } else {
+              tap_code(KC_MFFD);
+            }
+      break;
+      case _ILLUSTRATOR:
+         if (clockwise) {
+              tap_code16(LGUI(KC_MINS));
+            } else {
+              tap_code16(LGUI(KC_EQL));
+            }
+      break;
+      case _ADJUST:
+         if (clockwise) {
+            rgblight_decrease_sat();
+            } else {
+            rgblight_increase_sat();
+            }
+      break;
+      default:
     if (clockwise) {
-      tap_code(KC_C);
+      tap_code(KC_BSPC);
     } else {
-      tap_code(KC_D);
+      tap_code(KC_DEL);
+    }
+    }
+  }
+}
+
+void matrix_scan_user(void) {
+  if(tabbing) {
+    if (timer_elapsed(tabtimer) > TABBING_TIMER) {
+      unregister_code(KC_LGUI);
+      tabbing = false;
     }
   }
 }
